@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM centos:7
+FROM rockylinux/rockylinux:8
 
 ARG COMMIT=master
 
 # Install necessary packages
-RUN yum update -y && \
-    yum install -y \
+RUN dnf update -y && \
+    dnf install -y \
         epel-release \
         gcc \
         gcc-c++ \
@@ -27,7 +27,7 @@ RUN yum update -y && \
         python3 \
         python3-devel \
         which && \
-    yum clean all
+    dnf clean all
 
 # Set locale
 RUN localedef -c -f UTF-8 -i en_US en_US.UTF-8
