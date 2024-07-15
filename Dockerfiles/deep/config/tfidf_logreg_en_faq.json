@@ -69,7 +69,7 @@
         "infer_method": "predict_proba",
         "C": 1000,
         "penalty": "l2",
-        "solver": "lbfgs"  # solver 값을 추가합니다.
+        "solver": "lbfgs"
       },
       {
         "in": "y_pred_proba",
