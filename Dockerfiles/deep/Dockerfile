@@ -20,14 +20,14 @@ EXPOSE 5000
 
 WORKDIR /base
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN dnf update && \
+    dnf install -y --no-install-recommends \
         build-essential \
         git \
         locales && \
     printf '%s\n%s\n' 'en_US.UTF-8 UTF-8' 'ru_RU.UTF-8 UTF-8' >> /etc/locale.gen && \
     locale-gen && \
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
+    dnf purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
 	rm -rf /var/lib/apt/lists/* && \
 	pip install virtualenv==16.7.5 && \
 	virtualenv venv && \
