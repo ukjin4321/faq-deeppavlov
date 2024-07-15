@@ -1,43 +1,34 @@
 # Dockerfile
 
-FROM rockylinux/rockylinux:8
+FROM python:3.8-slim-buster
 
-ARG COMMIT=master
-
-# Install necessary packages
-RUN dnf update -y && \
-    dnf install -y \
-        epel-release \
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
         gcc \
-        gcc-c++ \
+        libc-dev \
+        build-essential \
+        libssl-dev \
+        libffi-dev \
         git \
-        make \
-        python3 \
-        python3-devel \
-        which && \
-    dnf clean all
+        wget \
+        curl \
+        unzip && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install pip and virtualenv
-RUN python3 -m ensurepip && \
-    python3 -m pip install --no-cache --upgrade pip && \
-    python3 -m pip install --no-cache virtualenv==16.7.5
+# Install pip
+RUN python -m pip install --upgrade pip
 
 # Set working directory
 WORKDIR /base
 
-# Clone DeepPavlov repository and setup
+# Install DeepPavlov from GitHub
 RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
     cd DeepPavlov && \
-    git checkout $COMMIT
-
-# Install Python dependencies
-RUN cd DeepPavlov && \
-    python3 -m pip install --no-cache-dir -r requirements.txt && \
-    python3 -m pip install --no-cache-dir -e . && \
-    python3 -m pip install --no-cache-dir scikit-learn==0.24.2  # Set scikit-learn version here
+    pip install -e .[all]
 
 # Install additional Python packages
-RUN python3 -m pip install email-validator numpy
+RUN pip install email-validator numpy scikit-learn==0.24.2
 
 # Copy configuration and training data
 COPY config/tfidf_logreg_en_faq.json /base/config/tfidf_logreg_en_faq.json
@@ -52,14 +43,14 @@ ENV DOWNLOADS_PATH=/deep/downloads
 ENV MODELS_PATH=/deep/models
 
 # Download and install DeepPavlov model
-RUN python3 -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
-RUN python3 -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
+RUN python -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
+RUN python -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
 
 # Train DeepPavlov model
-RUN python3 -m deeppavlov train /base/config/tfidf_logreg_en_faq.json
+RUN python -m deeppavlov train /base/config/tfidf_logreg_en_faq.json
 
 # Expose port for API
 EXPOSE 5000
 
 # Start DeepPavlov API server
-CMD python3 -m deeppavlov riseapi /base/config/tfidf_logreg_en_faq.json
+CMD python -m deeppavlov riseapi /base/config/tfidf_logreg_en_faq.json
