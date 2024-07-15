@@ -40,13 +40,15 @@ WORKDIR /base
 # Clone DeepPavlov repository and setup
 RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
     cd DeepPavlov && \
-    git checkout $COMMIT && \
-    python3 setup.py develop && \
-    python3 -c 'import deeppavlov.models' && \
-    rm -rf /root/.cache
+    git checkout $COMMIT
+
+# Install Python dependencies
+RUN cd DeepPavlov && \
+    python3 -m pip install --no-cache-dir -r requirements.txt && \
+    python3 -m pip install --no-cache-dir -e .
 
 # Install additional Python packages
-RUN python3 -m pip install email-validator numpy
+RUN python3 -m pip install email-validator
 
 # Copy configuration and training data
 RUN mkdir /base/config
