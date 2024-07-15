@@ -68,7 +68,8 @@
         "model_class": "sklearn.linear_model:LogisticRegression",
         "infer_method": "predict_proba",
         "C": 1000,
-        "penalty": "l2"
+        "penalty": "l2",
+        "solver": "lbfgs"  # solver 값을 추가합니다.
       },
       {
         "in": "y_pred_proba",
