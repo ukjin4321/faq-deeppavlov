@@ -1,34 +1,56 @@
 # Dockerfile
+# Copyright 2017 Neural Networks and Deep Learning lab, MIPT
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-FROM python:3.8-slim-buster
+FROM rockylinux/rockylinux:8
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+ARG COMMIT=master
+
+# Install necessary packages
+RUN dnf update -y && \
+    dnf install -y \
+        epel-release \
         gcc \
-        libc-dev \
-        build-essential \
-        libssl-dev \
-        libffi-dev \
+        gcc-c++ \
         git \
-        wget \
-        curl \
-        unzip && \
-    rm -rf /var/lib/apt/lists/*
+        make \
+        python3 \
+        python3-devel \
+        which && \
+    dnf clean all
 
-# Install pip
-RUN python -m pip install --upgrade pip
+# Install pip and virtualenv
+RUN python3 -m ensurepip && \
+    python3 -m pip install --no-cache --upgrade pip && \
+    python3 -m pip install --no-cache virtualenv==16.7.5
 
 # Set working directory
 WORKDIR /base
 
-# Install DeepPavlov from GitHub
+# Clone DeepPavlov repository and setup
 RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
     cd DeepPavlov && \
-    pip install -e .[all]
+    git checkout $COMMIT
+
+# Install Python dependencies
+RUN cd DeepPavlov && \
+    python3 -m pip install --no-cache-dir -r requirements.txt && \
+    python3 -m pip install --no-cache-dir -e . && \
+    python3 -m pip install --no-cache-dir scikit-learn
 
 # Install additional Python packages
-RUN pip install email-validator numpy scikit-learn==0.24.2
+RUN python3 -m pip install email-validator numpy
 
 # Copy configuration and training data
 COPY config/tfidf_logreg_en_faq.json /base/config/tfidf_logreg_en_faq.json
@@ -43,14 +65,14 @@ ENV DOWNLOADS_PATH=/deep/downloads
 ENV MODELS_PATH=/deep/models
 
 # Download and install DeepPavlov model
-RUN python -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
-RUN python -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
+RUN python3 -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
+RUN python3 -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
 
 # Train DeepPavlov model
-RUN python -m deeppavlov train /base/config/tfidf_logreg_en_faq.json
+RUN python3 -m deeppavlov train /base/config/tfidf_logreg_en_faq.json
 
 # Expose port for API
 EXPOSE 5000
 
 # Start DeepPavlov API server
-CMD python -m deeppavlov riseapi /base/config/tfidf_logreg_en_faq.json
+CMD python3 -m deeppavlov riseapi /base/config/tfidf_logreg_en_faq.json
