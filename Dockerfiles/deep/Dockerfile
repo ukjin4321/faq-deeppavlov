@@ -12,49 +12,66 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.7-slim-stretch
+FROM centos:7
 
 ARG COMMIT=master
 
-EXPOSE 5000
+# Install necessary packages
+RUN yum update -y && \
+    yum install -y \
+        epel-release \
+        gcc \
+        gcc-c++ \
+        git \
+        make \
+        python3 \
+        python3-devel \
+        which && \
+    yum clean all
 
+# Set locale
+RUN localedef -c -f UTF-8 -i en_US en_US.UTF-8
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
+
+# Install pip and virtualenv
+RUN python3 -m ensurepip && \
+    python3 -m pip install --no-cache --upgrade pip && \
+    python3 -m pip install --no-cache virtualenv==16.7.5
+
+# Set working directory
 WORKDIR /base
 
-RUN dnf update && \
-    dnf install -y --no-install-recommends \
-        build-essential \
-        git \
-        locales && \
-    printf '%s\n%s\n' 'en_US.UTF-8 UTF-8' 'ru_RU.UTF-8 UTF-8' >> /etc/locale.gen && \
-    locale-gen && \
-    dnf purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false && \
-	rm -rf /var/lib/apt/lists/* && \
-	pip install virtualenv==16.7.5 && \
-	virtualenv venv && \
-	mkdir -p /venv/dp_internal_token_dir && \
-    rm -rf /root/.cache
-
-ENV PATH=/base/venv/bin:$PATH
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US.UTF-8' LC_ALL='en_US.UTF-8'
-
+# Clone DeepPavlov repository and setup
 RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
     cd DeepPavlov && \
     git checkout $COMMIT && \
-    python setup.py develop && \
-    python -c 'import deeppavlov.models' && \
+    python3 setup.py develop && \
+    python3 -c 'import deeppavlov.models' && \
     rm -rf /root/.cache
 
-RUN pip install email-validator
+# Install additional Python packages
+RUN python3 -m pip install email-validator
 
+# Copy configuration and training data
 RUN mkdir /base/config
 RUN mkdir /base/train
-
 COPY config/tfidf_logreg_en_faq.json /base/config/tfidf_logreg_en_faq.json
 COPY train/file.csv /base/train/file.csv
 
+# Create directory for DeepPavlov settings
 RUN mkdir -p /root/.deeppavlov
 
-RUN python -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
-RUN python -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
-RUN python -m deeppavlov train /base/config/tfidf_logreg_en_faq.json
-CMD python -m deeppavlov riseapi /base/config/tfidf_logreg_en_faq.json
+# Install and download DeepPavlov model
+RUN python3 -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
+RUN python3 -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
+
+# Train DeepPavlov model
+RUN python3 -m deeppavlov train /base/config/tfidf_logreg_en_faq.json
+
+# Expose port for API
+EXPOSE 5000
+
+# Start DeepPavlov API server
+CMD python3 -m deeppavlov riseapi /base/config/tfidf_logreg_en_faq.json
