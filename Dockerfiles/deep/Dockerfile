@@ -45,10 +45,11 @@ RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
 # Install Python dependencies
 RUN cd DeepPavlov && \
     python3 -m pip install --no-cache-dir -r requirements.txt && \
+    python3 -m pip install --no-cache-dir -r deeppavlov/requirements/spacy.txt && \
     python3 -m pip install --no-cache-dir -e .
 
 # Install additional Python packages
-RUN python3 -m pip install email-validator
+RUN python3 -m pip install email-validator numpy
 
 # Copy configuration and training data
 RUN mkdir /base/config
