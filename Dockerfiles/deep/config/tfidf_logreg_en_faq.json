@@ -25,15 +25,9 @@
         "out": "q_lem"
       },
       {
-        "in": [
-          "q_lem"
-        ],
-        "out": [
-          "q_vect"
-        ],
-        "fit_on": [
-          "q_lem"
-        ],
+        "in": ["q_lem"],
+        "out": ["q_vect"],
+        "fit_on": ["q_lem"],
         "id": "tfidf_vec",
         "class_name": "sklearn_component",
         "save_path": "{MODELS_PATH}/faq/mipt/en_mipt_faq_v4/tfidf.pkl",
@@ -44,9 +38,7 @@
       {
         "id": "answers_vocab",
         "class_name": "simple_vocab",
-        "fit_on": [
-          "y"
-        ],
+        "fit_on": ["y"],
         "save_path": "{MODELS_PATH}/faq/mipt/en_mipt_faq_v4/en_mipt_answers.dict",
         "load_path": "{MODELS_PATH}/faq/mipt/en_mipt_faq_v4/en_mipt_answers.dict",
         "in": "y",
@@ -54,13 +46,8 @@
       },
       {
         "in": "q_vect",
-        "fit_on": [
-          "q_vect",
-          "y_ids"
-        ],
-        "out": [
-          "y_pred_proba"
-        ],
+        "fit_on": ["q_vect", "y_ids"],
+        "out": ["y_pred_proba"],
         "class_name": "sklearn_component",
         "main": true,
         "save_path": "{MODELS_PATH}/faq/mipt/en_mipt_faq_v4/logreg.pkl",
@@ -84,11 +71,7 @@
         "ref": "answers_vocab"
       }
     ],
-    "out": [
-      "y_pred_answers",
-      "y_pred_proba",
-      "y_pred_ids"
-    ]
+    "out": ["y_pred_answers", "y_pred_proba", "y_pred_ids"]
   },
   "train": {
     "evaluation_targets": [],
@@ -100,9 +83,7 @@
       "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
       "MODELS_PATH": "{ROOT_PATH}/models"
     },
-    "requirements": [
-      "{DEEPPAVLOV_PATH}/requirements/en_core_web_sm.txt"
-    ],
+    "requirements": ["{DEEPPAVLOV_PATH}/requirements/en_core_web_sm.txt"],
     "download": [
       {
         "url": "http://files.deeppavlov.ai/faq/mipt/en_mipt_faq_v4.tar.gz",
