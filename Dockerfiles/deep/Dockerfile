@@ -35,7 +35,7 @@ RUN python3 -m ensurepip && \
     python3 -m pip install --no-cache virtualenv==16.7.5
 
 # Set working directory
-WORKDIR /base
+WORKDIR /deep
 
 # Clone DeepPavlov repository and setup
 RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
@@ -53,21 +53,21 @@ RUN python3 -m pip install email-validator
 # Copy configuration and training data
 RUN mkdir /base/config
 RUN mkdir /base/train
-COPY config/tfidf_logreg_en_faq.json /base/config/tfidf_logreg_en_faq.json
+COPY config/tfidf_logreg_en_faq.json /deep/config/tfidf_logreg_en_faq.json
 COPY train/file.csv /base/train/file.csv
 
 # Create directory for DeepPavlov settings
 RUN mkdir -p /root/.deeppavlov
 
 # Install and download DeepPavlov model
-RUN python3 -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
-RUN python3 -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
+RUN python3 -m deeppavlov install /deep/config/tfidf_logreg_en_faq.json
+RUN python3 -m deeppavlov download /deep/config/tfidf_logreg_en_faq.json
 
 # Train DeepPavlov model
-RUN python3 -m deeppavlov train /base/config/tfidf_logreg_en_faq.json
+RUN python3 -m deeppavlov train /deep/config/tfidf_logreg_en_faq.json
 
 # Expose port for API
 EXPOSE 5000
 
 # Start DeepPavlov API server
-CMD python3 -m deeppavlov riseapi /base/config/tfidf_logreg_en_faq.json
+CMD python3 -m deeppavlov riseapi /deep/config/tfidf_logreg_en_faq.json
