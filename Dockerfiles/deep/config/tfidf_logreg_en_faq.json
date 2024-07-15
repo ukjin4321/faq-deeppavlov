@@ -79,9 +79,9 @@
   },
   "metadata": {
     "variables": {
-      "ROOT_PATH": "./deep",
-      "DOWNLOADS_PATH": "{ROOT_PATH}/downloads",
-      "MODELS_PATH": "{ROOT_PATH}/models"
+      "ROOT_PATH": "/deep",
+      "DOWNLOADS_PATH": "/deep/downloads",
+      "MODELS_PATH": "/deep/models"
     },
     "requirements": ["{DEEPPAVLOV_PATH}/requirements/en_core_web_sm.txt"],
     "download": [

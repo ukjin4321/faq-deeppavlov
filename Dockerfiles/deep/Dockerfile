@@ -1,3 +1,4 @@
+# Dockerfile
 # Copyright 2017 Neural Networks and Deep Learning lab, MIPT
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,15 +53,18 @@ RUN cd DeepPavlov && \
 RUN python3 -m pip install email-validator numpy
 
 # Copy configuration and training data
-RUN mkdir /base/config
-RUN mkdir /base/train
 COPY config/tfidf_logreg_en_faq.json /base/config/tfidf_logreg_en_faq.json
 COPY train/file.csv /base/train/file.csv
 
 # Create directory for DeepPavlov settings
 RUN mkdir -p /root/.deeppavlov
 
-# Install and download DeepPavlov model
+# Metadata setup
+ENV ROOT_PATH=/deep
+ENV DOWNLOADS_PATH=/deep/downloads
+ENV MODELS_PATH=/deep/models
+
+# Download and install DeepPavlov model
 RUN python3 -m deeppavlov install /base/config/tfidf_logreg_en_faq.json
 RUN python3 -m deeppavlov download /base/config/tfidf_logreg_en_faq.json
 
