@@ -47,7 +47,7 @@ RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
 RUN cd DeepPavlov && \
     python3 -m pip install --no-cache-dir -r requirements.txt && \
     python3 -m pip install --no-cache-dir -e . && \
-    python3 -m pip install --no-cache-dir scikit-learn
+    python3 -m pip install --no-cache-dir scikit-learn==0.22.2
 
 # Install additional Python packages
 RUN python3 -m pip install email-validator numpy
