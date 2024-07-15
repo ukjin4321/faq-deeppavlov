@@ -46,7 +46,7 @@ RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
     rm -rf /root/.cache
 
 # Install additional Python packages
-RUN python3 -m pip install email-validator
+RUN python3 -m pip install email-validator numpy
 
 # Copy configuration and training data
 RUN mkdir /base/config
