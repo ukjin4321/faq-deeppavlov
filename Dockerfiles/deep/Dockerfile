@@ -29,12 +29,6 @@ RUN dnf update -y && \
         which && \
     dnf clean all
 
-# Set locale
-RUN localedef -c -f UTF-8 -i en_US en_US.UTF-8
-ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8
-
 # Install pip and virtualenv
 RUN python3 -m ensurepip && \
     python3 -m pip install --no-cache --upgrade pip && \
