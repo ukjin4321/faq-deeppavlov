@@ -1,18 +1,4 @@
 # Dockerfile
-# Copyright 2017 Neural Networks and Deep Learning lab, MIPT
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 FROM rockylinux/rockylinux:8
 
 ARG COMMIT=master
@@ -46,11 +32,13 @@ RUN git clone https://github.com/deepmipt/DeepPavlov.git && \
 # Install Python dependencies
 RUN cd DeepPavlov && \
     python3 -m pip install --no-cache-dir -r requirements.txt && \
-    python3 -m pip install --no-cache-dir -e . && \
-    python3 -m pip install --no-cache-dir scikit-learn
+    python3 -m pip install --no-cache-dir -e .
 
 # Install additional Python packages
 RUN python3 -m pip install email-validator numpy
+
+# Install scikit-learn compatible version
+RUN python3 -m pip install scikit-learn==0.22.2.post1
 
 # Copy configuration and training data
 COPY config/tfidf_logreg_en_faq.json /base/config/tfidf_logreg_en_faq.json
